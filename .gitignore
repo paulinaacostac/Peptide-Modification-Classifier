@@ -1,3 +1,5 @@
 /data
 /pickle_files
 /__pycache__
+/src/wandb
+/src/__pycache__

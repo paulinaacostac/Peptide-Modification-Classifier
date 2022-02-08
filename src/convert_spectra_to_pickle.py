@@ -10,6 +10,10 @@ import numpy as np
 from sklearn.model_selection import train_test_split
 import config
 
+
+# Run with labeled mgf files pls (that have SEQ=)
+
+
 def create_out_dir(dir_path, exist_ok=True):
     out_path = Path(dir_path)
     if out_path.exists() and out_path.is_dir():
@@ -214,7 +218,7 @@ def preprocess_mgfs(mgf_dir, out_dir):
                 val = unsorts[1]
                     
                 assert len(ind) == len(val)
-                print("--------------input: ",[ind, val, mass, l_charge, pep_len - min_pep_len, int(num_mods > 0), missed_cleavs])
+                #print("--------------input: ",[ind, val, mass, l_charge, pep_len - min_pep_len, int(num_mods > 0), missed_cleavs])
                 spec_out.append([ind, val, mass, l_charge, pep_len - min_pep_len, int(num_mods > 0), missed_cleavs]) # last 3 values are labels
                 len_out.append(pep_len - min_pep_len)
                 is_name = True
@@ -234,10 +238,9 @@ def preprocess_mgfs(mgf_dir, out_dir):
         print('In current file, read {} out of {}'.format(lcount, count))
         print("Ignored: large mass: {}, pep len: {}, dup: {}".format(mass_ign, pep_len_ign, dup_ign))
         print('overall running count: ' + str(tot_count))
-        print(spec_out)
+        #print(spec_out)
         print('max moz: ' + str(max_moz))
     
-    print(spec_out)
     train_val_spec_out, test_spec_out = train_test_split(spec_out, test_size=0.1, random_state=37, shuffle=True)
     train_spec_out, val_spec_out = train_test_split(train_val_spec_out, test_size=0.2, random_state=79, shuffle=True)
     with open(join(out_dir, 'train_specs.pkl'), 'wb') as f:
