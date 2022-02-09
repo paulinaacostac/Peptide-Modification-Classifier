@@ -1,3 +1,4 @@
+
 from sklearn.utils import shuffle
 import torch
 from torch.utils import data
@@ -7,64 +8,68 @@ import math
 import pprint
 import train
 
+
 #train_dataset = dataset.SpectraDataset("../pickle_files/test_specs.pkl",50000)
 
 #train_generator = torch.utils.data.DataLoader(train_dataset,batch_size=4,shuffle=True)
 
 #wandb.init(project="ModsClassifier")
-
-# You can change the number of GPUs per trial here:
-sweep_config = {
-'method': 'random'
-}
-
-metric = {
-'name': 'loss',
-'goal': 'minimize'   
-}
-
-sweep_config['metric'] = metric
-
-parameters_dict = {
-'optimizer': {
-    'values': ['adam', 'sgd']
-    },
-'layer1_size': {
-    'values': [64]
-    },
-}
-
-sweep_config['parameters'] = parameters_dict
-
-parameters_dict.update({
-'epochs': {
-    'value': 10}
-})
-
-parameters_dict.update({
-'learning_rate': {
-    # a flat distribution between 0 and 0.1
-    'distribution': 'uniform',
-    'min': 0,
-    'max': 0.1
-    },
-'batch_size': {
-    # integers between 32 and 256
-    # with evenly-distributed logarithms 
-    'distribution': 'q_log_uniform',
-    'q': 1,
-    'min': math.log(32),
-    'max': math.log(256),
+if __name__ == "__main__":
+    # You can change the number of GPUs per trial here:
+    sweep_config = {
+    'method': 'random'
     }
-})
 
-pprint.pprint(sweep_config)
+    metric = {
+    'name': 'accuracy',
+    'goal': 'maximize'   
+    }
 
-sweep_id = wandb.sweep(sweep_config, project="ModsClassifier")    
+    sweep_config['metric'] = metric
 
-#device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
-#main(num_samples=10, max_num_epochs=10, gpus_per_trial=0)
+    parameters_dict = {
+    'optimizer': {
+        'values': ['adam']
+        },
+    'layer1_size': {
+        'values': [1024,2048]
+        },
+    'layer2_size': {
+        'values': [256,512,1024]
+        },
+    'layer3_size': {
+        'values': [64,128,256]
+        },
+    }
 
-wandb.agent(sweep_id,train.train_classifier,count=5)
+    sweep_config['parameters'] = parameters_dict
 
-#print("final accuracy: ",test_accuracy())
+    parameters_dict.update({
+    'epochs': {
+        'value': 15}
+    })
+
+    parameters_dict.update({
+    'learning_rate': {
+        # a flat distribution between 0 and 0.1
+        'distribution': 'uniform',
+        'min': 0,
+        'max': 0.1
+        },
+    'batch_size': {
+        # integers between 32 and 256
+        # with evenly-distributed logarithms 
+        'values':[64,128,256]
+        }
+    })
+
+    pprint.pprint(sweep_config)
+
+    sweep_id = wandb.sweep(sweep_config, project="ModsClassifier2")    
+
+    #device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+    #main(num_samples=10, max_num_epochs=10, gpus_per_trial=0)
+
+    wandb.agent(sweep_id,train.train_classifier,count=10)
+
+    #print("final accuracy: ",test_accuracy())

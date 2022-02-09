@@ -1,3 +1,4 @@
+
 from sklearn.utils import shuffle
 import torch
 from torch.utils import data
@@ -20,18 +21,24 @@ if __name__ == "__main__":
     }
 
     metric = {
-    'name': 'loss',
-    'goal': 'minimize'   
+    'name': 'accuracy',
+    'goal': 'maximize'   
     }
 
     sweep_config['metric'] = metric
 
     parameters_dict = {
     'optimizer': {
-        'values': ['adam', 'sgd']
+        'values': ['adam']
         },
     'layer1_size': {
-        'values': [64]
+        'values': [1024,2048]
+        },
+    'layer2_size': {
+        'values': [256,512,1024]
+        },
+    'layer3_size': {
+        'values': [64,128,256]
         },
     }
 
@@ -39,7 +46,7 @@ if __name__ == "__main__":
 
     parameters_dict.update({
     'epochs': {
-        'value': 50}
+        'value': 15}
     })
 
     parameters_dict.update({
@@ -52,20 +59,17 @@ if __name__ == "__main__":
     'batch_size': {
         # integers between 32 and 256
         # with evenly-distributed logarithms 
-        'distribution': 'q_log_uniform',
-        'q': 1,
-        'min': math.log(32),
-        'max': math.log(256),
+        'values':[64,128,256]
         }
     })
 
     pprint.pprint(sweep_config)
 
-    sweep_id = wandb.sweep(sweep_config, project="ModsClassifier")    
+    sweep_id = wandb.sweep(sweep_config, project="ModsClassifier2")    
 
     #device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
     #main(num_samples=10, max_num_epochs=10, gpus_per_trial=0)
 
-    wandb.agent(sweep_id,train.train_classifier,count=5)
+    wandb.agent(sweep_id,train.train_classifier,count=10)
 
     #print("final accuracy: ",test_accuracy())

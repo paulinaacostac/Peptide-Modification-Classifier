@@ -2,9 +2,10 @@
 #SBATCH --job-name="modifications classifier"
 #SBATCH --output="labeler-out.%j.%N.out"
 #SBATCH --partition=gpu
+#SBATCH --gpus=a100:1
 #SBATCH --nodes=1
-#SBATCH --ntasks-per-node=256
-#SBATCH --mem=2000gb
+#SBATCH --ntasks-per-node=32
+#SBATCH --mem=250gb
 #SBATCH --account=fsaeed
 #SBATCH --no-requeue
 #SBATCH -t 10:00:00
