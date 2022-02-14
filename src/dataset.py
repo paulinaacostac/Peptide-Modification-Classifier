@@ -6,15 +6,22 @@ from torch.utils import data
 import torchvision.transforms as transforms
 import pickle
 import pandas
+import numpy as np
 import torch
+import random
 
 class SpectraDataset(data.Dataset):
-    def __init__(self,pickle_path,spectra_size,samples_per_class):
+    def __init__(self,pickle_path,spectra_size,samples_per_class,mean_file=None,stds_path=None):
         self.spectra_data = pickle.load(open(pickle_path,"rb"))
+        random.shuffle(self.spectra_data)
         print("original ",pickle_path," dataset size: ",len(self.spectra_data))
+        self.means = None
+        self.stds = None
+        if not mean_file is None and not stds_path is None:
+            self.means = np.load(mean_file)
+            self.stds = np.load(stds_path)
         self.spectra_size = spectra_size #50.000
-        self.spectra_data = self.balance(samples_per_class)
-        #self.spectra_flattened = 
+        #self.spectra_data = self.balance(samples_per_class)
 
     def __len__(self):
         return len(self.spectra_data)
@@ -26,7 +33,11 @@ class SpectraDataset(data.Dataset):
 
         moz_indexes_2D = torch.LongTensor([[0]*len(moz_indexes),moz_indexes]) # moz_indexes in 2D array
         torch_spectra = torch.squeeze(torch.sparse_coo_tensor(moz_indexes_2D,abundance,torch.Size([1,self.spectra_size])).to_dense()) # the sparse_coo_tensor is returning an extra dimension we dont need N x 1 x 50.000
-        X = torch_spectra
+        
+        if not (self.means is None and self.stds is None): # normalize
+            X = (torch_spectra - torch.from_numpy(self.means).float())/torch.from_numpy(self.stds).float()
+        else: # not normalized
+            X = torch_spectra
         Y = label
 
         return X,Y
