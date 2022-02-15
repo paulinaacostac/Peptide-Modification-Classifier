@@ -1,6 +1,6 @@
 #!/bin/bash
 #SBATCH --job-name="modifications classifier"
-#SBATCH --output="labeler-out.%j.%N.out"
+#SBATCH --output="modsClassifierLog-out.%j.%N.out"
 #SBATCH --partition=gpu
 #SBATCH --gpus=a100:1
 #SBATCH --nodes=1

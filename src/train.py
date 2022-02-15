@@ -47,7 +47,7 @@ def train_classifier(config=None):
     print("val_loader length: ",len(val_loader))
 
     test_dataset = dataset.SpectraDataset("../pickle_files/test_specs.pkl",spectra_size,num_samples_per_class_test, means_path,stds_path)
-    test_loader = torch.utils.data.DataLoader(test_dataset,batch_size=1024,shuffle=True,num_workers=4)
+    test_loader = torch.utils.data.DataLoader(test_dataset,batch_size=len(test_dataset),shuffle=True,num_workers=4)
     print("test_dataset length: ",len(test_dataset))
     print("test_loader length: ",len(test_loader))
 
@@ -110,18 +110,17 @@ def train_classifier(config=None):
         wandb.log({"train_loss":(training_loss/len(train_loader)),"epoch":epoch})
         wandb.log({"val_accuracy":(correct_val/total_val),"epoch":epoch})
         wandb.log({"val_loss":(val_loss/len(val_loader)),"epoch":epoch})
+
+        # Test accuracy
+        #torch.save(net.state_dict(), "../saved_models")
+        test_acc,loss_acc = test_metrics(net,test_loader,device,criterion)
+        wandb.log({"test_accuracy":(test_acc),"epoch":epoch})
+        wandb.log({"test_loss":(loss_acc),"epoch":epoch})
         
         
-    print("Finished Training")
+    print("Finished Training-Validation-Testing")
     
-    # Test accuracy
-    #torch.save(net.state_dict(), "../saved_models")
-
-    test_acc,loss_acc = test_metrics(net,test_loader,device,criterion)
-    wandb.log({"test_accuracy":(test_acc),"epoch":epoch})
-    wandb.log({"test_loss":(loss_acc),"epoch":epoch})
-
-        
+  
 def test_metrics(net,test_loader,device,criterion):
     correct = 0
     total = 0
@@ -144,6 +143,14 @@ def build_optimizer(network,optimizer,learning_rate):
         optimizer = optim.SGD(network.parameters(),lr=learning_rate, momentum=0.9)
     elif optimizer == "adam":
         optimizer = optim.Adam(network.parameters(),lr=learning_rate)
+    elif optimizer == "adadelta":
+        optimizer = optim.Adadelta(network.parameters(),lr=learning_rate)
+    elif optimizer == "adagrad":
+        optimizer = optim.Adagrad(network.parameters(),lr=learning_rate)
+    elif optimizer == "sparseadam":
+        optimizer = optim.SparseAdam(network.parameters(),lr=learning_rate)
+    elif optimizer == "rmsprop":
+        optimizer = optim.RMSprop(network.parameters(),lr=learning_rate)
     return optimizer
 
 def format_run_name(config):
@@ -151,7 +158,7 @@ def format_run_name(config):
     out += "bs:"+str(config.batch_size)
     out += " ly1:"+str(config.layer1_size)
     out += " ly2:"+str(config.layer2_size)
-    #out += " ly3:"+str(config.layer3_size)
+    out += " ly3:"+str(config.layer3_size)
     out += " lr:"+"{:.2e}".format(config.learning_rate)
     out += " op:"+str(config.optimizer)
     return out
