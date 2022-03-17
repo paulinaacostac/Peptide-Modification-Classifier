@@ -75,6 +75,10 @@ def decimal_to_binary_array(num, arr_len):
 def preprocess_mgfs(mgf_dir, out_dir):
     
     mgf_files = verify_in_dir(mgf_dir, "mgf", [])
+
+    ########################################### TEST ONLY ##########################################################
+    #mgf_files = mgf_files[:8]
+
     create_out_dir(out_dir, exist_ok=False)
         
     print('reading {} files'.format(len(mgf_files)))

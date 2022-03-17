@@ -31,7 +31,7 @@ if __name__ == "__main__":
 
     parameters_dict = {
     'optimizer': {
-        'values': ['adam','adadelta','adagrad','sparseadam','rmsprop']
+        'values': ['adam']
         },
     'layer1_size': {
         'values': [1024]
@@ -67,11 +67,11 @@ if __name__ == "__main__":
 
     pprint.pprint(sweep_config)
 
-    sweep_id = wandb.sweep(sweep_config, project="Trial3TestEntirePerEpoch_optimizers_20epoch")    
+    sweep_id = wandb.sweep(sweep_config, project="ModsClassifierConfusion")    
 
     #device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
     #main(num_samples=10, max_num_epochs=10, gpus_per_trial=0)
 
-    wandb.agent(sweep_id,train.train_classifier,count=5)
+    wandb.agent(sweep_id,train.train_classifier,count=1)
 
     #print("final accuracy: ",test_accuracy())

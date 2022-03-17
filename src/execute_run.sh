@@ -10,4 +10,4 @@
 #SBATCH --no-requeue
 #SBATCH -t 10:00:00
 
-python sbatch_run_train.py
+python run_train.py

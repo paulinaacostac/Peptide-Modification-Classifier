@@ -16,6 +16,7 @@ num_samples_per_class_val = config.get_config(section='input', key='num_samples_
 num_samples_per_class_test = config.get_config(section='input', key='num_samples_per_class_test')
 means_path = config.get_config(section='input', key='means_path')
 stds_path = config.get_config(section='input', key='stds_path')
+pickle_files_path = config.get_config(section='input', key='pickle_files_path')
 
 def train_classifier(config=None):
     
@@ -36,17 +37,17 @@ def train_classifier(config=None):
     criterion = nn.CrossEntropyLoss()
     optimizer = build_optimizer(net, config.optimizer,0.0001)
 
-    train_dataset = dataset.SpectraDataset("../pickle_files/train_specs.pkl",spectra_size,num_samples_per_class_train, means_path,stds_path)
+    train_dataset = dataset.SpectraDataset(pickle_files_path+"train_specs.pkl",spectra_size,num_samples_per_class_train, means_path,stds_path)
     train_loader = torch.utils.data.DataLoader(train_dataset,batch_size=1024,shuffle=True,num_workers=4)
     print("train_dataset length: ",len(train_dataset))
     print("train_loader length: ",len(train_loader))
 
-    val_dataset = dataset.SpectraDataset("../pickle_files/val_specs.pkl",spectra_size,num_samples_per_class_val, means_path,stds_path)
+    val_dataset = dataset.SpectraDataset(pickle_files_path+"val_specs.pkl",spectra_size,num_samples_per_class_val, means_path,stds_path)
     val_loader = torch.utils.data.DataLoader(val_dataset,batch_size=1024,shuffle=True,num_workers=4)
     print("val_dataset length: ",len(val_dataset))
     print("val_loader length: ",len(val_loader))
 
-    test_dataset = dataset.SpectraDataset("../pickle_files/test_specs.pkl",spectra_size,num_samples_per_class_test, means_path,stds_path)
+    test_dataset = dataset.SpectraDataset(pickle_files_path+"test_specs.pkl",spectra_size,num_samples_per_class_test, means_path,stds_path)
     test_loader = torch.utils.data.DataLoader(test_dataset,batch_size=len(test_dataset),shuffle=True,num_workers=4)
     print("test_dataset length: ",len(test_dataset))
     print("test_loader length: ",len(test_loader))
