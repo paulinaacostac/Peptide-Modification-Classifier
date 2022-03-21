@@ -117,11 +117,41 @@ def train_classifier(config=None):
         test_acc,loss_acc = test_metrics(net,test_loader,device,criterion)
         wandb.log({"test_accuracy":(test_acc),"epoch":epoch})
         wandb.log({"test_loss":(loss_acc),"epoch":epoch})
-        
-        
+
+    f = open("confusion_matrix_data.txt","w")
+    data = generate_confusion_matrix(net,val_loader,device,criterion)
+    print("confusion_data-------------------------------------------------------------------------------------------------")
+    print(data)
+    f.write(str(data))
+    f.close()
+    
+    torch.save(net.state_dict(), "../saved_models")
     print("Finished Training-Validation-Testing")
     
+def generate_confusion_matrix(net,test_loader,device,criterion):
+    true_positives = true_negatives = false_positives = false_negatives = 0
+    total = 0
+    test_loss = 0
+    with torch.no_grad():
+        for data in test_loader:
+            inputs, labels = data
+            inputs, labels = inputs.to(device), labels.to(device)
+            outputs = net(inputs)
+            total += labels.size(0)
+            _, predicted = torch.max(outputs.data, 1)
+            tp,tn,fp,fn = calculate_confusion(predicted,labels)
+            true_positives,true_negatives,false_positives,false_negatives = true_positives + tp, true_negatives + tn, false_positives + fp, false_negatives + fn
+    return true_positives,true_negatives,false_positives,false_negatives, total
   
+def calculate_confusion(predicted,labels): #insert visible confusion
+    tp = tn = fp = fn = 0
+    for p,l in zip(predicted,labels):
+        if p == 0 and l == 0: tn += 1
+        elif p == 0 and l == 1: fn += 1
+        elif p == 1 and l == 0: fp += 1
+        else: tp += 1
+    return tp,tn,fp,fn
+
 def test_metrics(net,test_loader,device,criterion):
     correct = 0
     total = 0
@@ -137,7 +167,6 @@ def test_metrics(net,test_loader,device,criterion):
             loss = criterion(outputs, labels)
             test_loss += loss.item()
     return correct/total, test_loss/len(test_loader)
-
 
 def build_optimizer(network,optimizer,learning_rate):
     if optimizer == "sgd":

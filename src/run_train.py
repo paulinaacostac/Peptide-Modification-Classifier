@@ -48,7 +48,7 @@ if __name__ == "__main__":
 
     parameters_dict.update({
     'epochs': {
-        'value': 20}
+        'value': 15}
     })
 
     parameters_dict.update({
